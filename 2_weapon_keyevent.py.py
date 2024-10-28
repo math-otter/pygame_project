@@ -39,6 +39,16 @@ character_y_pos = screen_height - character_height - stage_height # 캐릭터 �
 character_to_x = 0 # 캐릭터 이동 방향
 character_speed = 5 # 캐릭터 이동 속도
 
+# 무기 만들기
+weapon = pygame.image.load(os.path.join(image_path, "weapon.png"))
+weapon_size = weapon.get_rect().size
+weapon_width = weapon_size[0] # 무기 가로 사이즈
+
+weapons = [] # 무기는 한 번에 여러발 발사 가능
+weapon_speed = 10
+
+
+
 # 게임 루프
 running = True
 while running:
@@ -54,6 +64,10 @@ while running:
                 character_to_x -= character_speed
             elif event.key == pygame.K_RIGHT: # 캐릭터 우측이동
                 character_to_x += character_speed
+            elif event.key == pygame.K_SPACE: # 무기 발사
+                weapon_x_pos = character_x_pos + (character_width / 2) - (weapon_width / 2) # 캐릭터 중간에서 발사
+                weapon_y_pos = character_y_pos
+                weapons.append([weapon_x_pos, weapon_y_pos])
         
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -67,10 +81,21 @@ while running:
     elif character_x_pos > screen_width - character_width:
         character_x_pos = screen_width - character_width
     
+    # 무기 위치 조정
+    # 예: (100,200) -> (100,200-v) -> (100,200-2v) -> ...
+    # 가로 좌표(0) 그대로, 세로 좌표(1)는 위로
+    weapons = [ [weapon[0], weapon[1] - weapon_speed] for weapon in weapons]
+    # 천장에 닿은 무기는 사라지도록 만들기(세로 좌표가 0보다 큰 것만 리스트에 담는다)
+    weapons = [ [weapon[0], weapon[1]] for weapon in weapons if weapon[1] > 0]
+
     # 4. 충돌 처리
 
-    # 5. 화면에 그리기
+    # 5. 화면에 그리기(배경, 무기, 스테이지, 캐릭터 순서로 덮는다)
     screen.blit(background, (0, 0))
+
+    for weapon_x_pos, weapon_y_pos in weapons:
+        screen.blit(weapon, (weapon_x_pos, weapon_y_pos))
+
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
 
