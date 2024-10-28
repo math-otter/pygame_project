@@ -179,7 +179,6 @@ while running:
         del weapons[weapon_to_remove]
         weapon_to_remove = -1
 
-
     # 5. 화면에 그리기(배경, 무기, 스테이지, 캐릭터 순서로 덮는다)
     screen.blit(background, (0, 0))
 
